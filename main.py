@@ -1,5 +1,5 @@
 # версия в висуалстудио - июль 2026
-import os
+import os, random
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from routers import forms  # Импортируем наш новый роутер
@@ -24,3 +24,15 @@ FILE_PATH = os.path.join(os.path.dirname(__file__), "val.txt")
 @app.get("/")
 def root():
     return {"message": "Hello 2026-Gena"}
+
+def generate_source_file(filename="source2.txt", count=2000):
+    """Генерирует файл со случайными числами от 0 до 1."""
+    with open(filename, "w", encoding="utf-8") as file:
+        for _ in range(count):
+            # random.random() генерирует float в диапазоне [0.0, 1.0)
+            file.write(f"{random.random()}\n")
+
+@app.get("/test")
+def test():
+    generate_source_file()
+    return {"message": "Тест прошел успешно"}
