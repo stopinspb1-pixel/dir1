@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  fastapi:
+    build: .
+    user: "${UID}:${GID}"
+    ports:
+      - "8020:8020"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1    
+    command: uvicorn main:app --host 0.0.0.0 --port 8020 --reload
+    container_name: fastapi_table
+
+  # ИСПРАВЛЕНО: Добавлен второй независимый контейнер
+  temp_logger:
+    image: python:3.11-slim
+    user: "${UID}:${GID}"
+    volumes:
+      # Монтируем папку проекта, чтобы сохранять val1.txt
+      - .:/app
+      # Монтируем системные датчики температуры из Ubuntu хоста (в режиме только чтения)
+      
+      - /sys/class:/sys/class:ro
+    working_dir: /app
+    # Запускаем скрипт в режиме без буферизации логов
+    command: python -u temp_monitor.py
+    container_name: cpu_temp_monitor
+    restart: always

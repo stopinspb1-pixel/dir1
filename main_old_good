@@ -1,0 +1,241 @@
+import os
+from dotenv import load_dotenv
+import tempfile
+from fastapi import FastAPI, Request, Response, Form
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+# Загружаем переменные из .env файла
+load_dotenv()
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+FILE_PATH = os.path.join(os.path.dirname(__file__), "val.txt")
+
+
+# Вспомогательная функция, чтобы не дублировать код чтения ссылок
+def get_site_urls():
+    return {
+        "url_A": os.getenv("SITE_A", "#"),
+        "url_B": os.getenv("SITE_B", "#"),
+        "url_C": os.getenv("SITE_C", "#"),
+        "url_D": os.getenv("SITE_D", "#"),
+        "url_E": os.getenv("SITE_E", "#"),
+        "url_F": os.getenv("SITE_F", "#"),
+        "url_G": os.getenv("SITE_G", "#"),
+        "url_H": os.getenv("SITE_H", "#"),
+        "url_J": os.getenv("SITE_J", "#"),
+    }
+
+
+
+def read_values():
+    """Читает все значения из файла (каждое с новой строки)."""
+    try:
+        with open(FILE_PATH, "r", encoding="utf-8") as f:
+            return [line.strip() for line in f if line.strip()]
+    except FileNotFoundError:
+        # Возвращаем список дефолтных значений, но файл на диске пока не создаем
+        return [f"default_{i}" for i in range(1, 11)]
+
+@app.get("/")
+async def root0():
+        return {"welcome!": "Hello Gena Novikov"}
+
+@app.get("/1")
+def root1():
+    data = "<h1>Привет Гена!</h1>"
+    return HTMLResponse(content=data)
+
+@app.get("/notfound", status_code=404)
+def notfound():
+    return  {"message": "Resource Not Found"}
+
+
+@app.get("/table", response_class=HTMLResponse)
+async def show_table(request: Request):
+    """Отображает HTML-страницу с таблицей."""
+    values = read_values()
+    return templates.TemplateResponse(
+        request=request,
+        name="table.html",
+        context={"values": values}
+    )
+
+
+@app.get("/api/values")
+async def get_values_api():
+    """Возвращает актуальные значения в формате JSON для автообновления."""
+    return {"values": read_values()}
+
+
+@app.get("/form", response_class=HTMLResponse)
+async def show_form(request: Request):
+    """Возвращает HTML-форму для обнуления значений."""
+    return templates.TemplateResponse(
+        request=request, 
+        name="form.html", 
+        context={}
+    )
+
+
+@app.post("/set0")
+async def set_zero():
+    """
+    Заменяет каждое значение в val.txt на '0',
+    сохраняя количество строк.
+    """
+    # Проверяем, существовал ли файл физически до операции
+    file_existed = os.path.exists(FILE_PATH)
+    
+    current_values = read_values()
+    count = len(current_values)
+    
+    # Гарантируем, что каждая строка (включая последнюю) закончится символом \n
+    content_to_write = "".join(["0\n" for _ in range(count)])
+
+    try:
+        # Атомарная запись: пишем во временный файл, затем заменяем им целевой.
+        # Это исключает чтение «битого» файла другими запросами во время записи.
+        dir_name = os.path.dirname(FILE_PATH)
+        with tempfile.NamedTemporaryFile('w', dir=dir_name, delete=False, encoding='utf-8') as tf:
+            tf.write(content_to_write)
+            temp_name = tf.name
+            
+        os.replace(temp_name, FILE_PATH)
+        
+        message = (
+            f"Все {count} значений заменены на 0" 
+            if file_existed else 
+            f"Файл отсутствовал. Создан новый файл с {count} нулями."
+        )
+        
+        return JSONResponse(content={"status": "ok", "message": message})
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "detail": str(e)}
+        )
+
+@app.post("/set1")
+async def set_one():
+    """
+    Заменяет каждое значение в val.txt на '1',
+    сохраняя количество строк.
+    """
+    file_existed = os.path.exists(FILE_PATH)
+    current_values = read_values()
+    count = len(current_values)
+    
+    # Гарантируем, что каждая строка закончится символом \n, но теперь пишем "1"
+    content_to_write = "".join(["1\n" for _ in range(count)])
+
+    try:
+        dir_name = os.path.dirname(FILE_PATH)
+        with tempfile.NamedTemporaryFile('w', dir=dir_name, delete=False, encoding='utf-8') as tf:
+            tf.write(content_to_write)
+            temp_name = tf.name
+            
+        os.replace(temp_name, FILE_PATH)
+        
+        message = (
+            f"Все {count} значений заменены на 1" 
+            if file_existed else 
+            f"Файл отсутствовал. Создан новый файл с {count} единицами."
+        )
+        
+        return JSONResponse(content={"status": "ok", "message": message})
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "detail": str(e)}
+        )
+
+TEMP_FILE_PATH = os.path.join(os.path.dirname(__file__), "val1.txt")
+
+@app.get("/api/temperature")
+async def get_temperature_api():
+    """Читает значение температуры процессора из val1.txt."""
+    try:
+        if os.path.exists(TEMP_FILE_PATH):
+            with open(TEMP_FILE_PATH, "r", encoding="utf-8") as f:
+                temp_data = f.read().strip()
+                return {"temperature": temp_data if temp_data else "Загрузка..."}
+        return {"temperature": "Нет данных"}
+    except Exception:
+        return {"temperature": "Ошибка чтения"}
+
+
+@app.get("/3", response_class=HTMLResponse)
+async def show_form(request: Request):
+        # Собираем словарик со ссылками из .env
+    urls = {
+        "url_A": os.getenv("SITE_A", "#"),
+        "url_B": os.getenv("SITE_B", "#"),
+        "url_C": os.getenv("SITE_C", "#"),
+        "url_D": os.getenv("SITE_D", "#"),
+        "url_E": os.getenv("SITE_E", "#"),
+        "url_F": os.getenv("SITE_F", "#"),
+        # "url_F": os.getenv("SITE_F", "#"), и так далее до 9 штук...
+    }
+        
+    return templates.TemplateResponse(
+        request=request, 
+        name="gena.htm", 
+        context={"username": "Геннадий", "status": "Админ", "message2": "Начало", **urls }
+    )
+
+# Новый POST-метод (принимает клики по кнопкам)
+@app.post("/3", response_class=HTMLResponse)
+async def handle_form(
+    request: Request, 
+    button_action: str = Form(...),  # Сюда прилетит value нажатой кнопки ("btn1", "btn2" или "btn3")
+    user_text: str = Form("") 
+):
+    # Логика обработки кликов
+    if button_action == "btn1":
+        message = "Ура, Вы нажали Первую кнопку!"
+    elif button_action == "btn2":
+        message = "Вы нажали Вторую кнопку!"
+    elif button_action == "btn3":
+        message = "Вы нажали Третью кнопку!"
+    elif button_action == "but-A":
+        message = "Активировано действие А!"
+    elif button_action == "but-B":
+        message = "Активировано действие B!"
+    elif button_action == "but-C":
+        message = "Активировано действие C!"
+    elif button_action == "but-D":
+        message = "Активировано действие D!"
+    elif button_action == "but-E":
+        message = "Активировано действие E!"
+    elif button_action == "but-F":
+        message = "Активировано действие F!"
+    else:
+    # Сработает, если button_action == "enter_pressed"
+        message = "Вы отправили текст нажатием клавиши Enter!"
+
+  # Логика обработки текста
+    if user_text.strip():
+        message2 = f"Вы ввели текст: {user_text}"
+    else:
+        message2 = "Вы ничего не ввели в текстовое поле."
+
+
+    # Возвращаем шаблон, сохраняя имя "Геннадий" и статус "Админ"
+    return templates.TemplateResponse(
+        request=request, 
+        name="gena.htm", 
+        context={
+            "username": "Геннадий", 
+            "status": "Админ", 
+            "message": message,
+            "message2": message2,
+            "user_text": user_text   
+        }
+    ) 
+

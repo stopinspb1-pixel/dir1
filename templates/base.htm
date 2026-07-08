@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Блок для динамической замены заголовка страницы -->
+    <title>{% block title %}Мой FastAPI Сайт{% endblock %}</title>
+    
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; text-align: center; }
+        .btn-container { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
+        .btn-zero { background-color: #f8f8f8; }
+        .btn-zero:hover { background-color: #e8e8e8; }
+        .btn-one { background-color: #007bff; color: white; border: none; }
+        .btn-one:hover { background-color: #0056b3; }
+        a { display: block; margin-top: 20px; color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        #message-box { margin-top: 20px; padding: 10px; border-radius: 4px; display: none; font-weight: bold; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+    <!-- Основной блок для уникального контента каждой страницы -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

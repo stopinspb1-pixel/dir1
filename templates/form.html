@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Управление значениями</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; text-align: center; }
+        .btn-container { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 4px; border: 1px solid #ccc; }
+        .btn-zero { background-color: #f8f8f8; }
+        .btn-zero:hover { background-color: #e8e8e8; }
+        .btn-one { background-color: #007bff; color: white; border: none; }
+        .btn-one:hover { background-color: #0056b3; }
+        a { display: block; margin-top: 20px; color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        
+        #message-box { margin-top: 20px; padding: 10px; border-radius: 4px; display: none; font-weight: bold; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h2>Управление значениями в val.txt</h2>
+    <p>Выберите действие для изменения всех строк в файле:</p>
+    
+    <div class="btn-container">
+        <!-- Две кнопки, каждая вызывает функцию со своим эндпоинтом -->
+        <button class="btn-zero" onclick="sendResetRequest('/set0')">Обнулить (0)</button>
+        <button class="btn-one" onclick="sendResetRequest('/set1')">Установить в 1</button>
+    </div>
+
+    <div id="message-box"></div>
+
+    <a href="/table">← Назад к таблице</a>
+
+    <script>
+        async function sendResetRequest(endpoint) {
+            const msgBox = document.getElementById('message-box');
+            msgBox.style.display = 'none';
+            
+            try {
+                const response = await fetch(endpoint, { method: 'POST' });
+                const data = await response.json();
+                
+                msgBox.innerText = data.message || data.detail;
+                msgBox.style.display = 'block';
+                
+                if (response.ok) {
+                    msgBox.className = 'success';
+                } else {
+                    msgBox.className = 'error';
+                }
+            } catch (error) {
+                msgBox.innerText = 'Ошибка сети или сервер недоступен';
+                msgBox.className = 'error';
+                msgBox.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends "base.htm" %}
+
+<!-- Переопределяем заголовок вкладки в браузере -->
+{% block title %}Работа с templates — Гена{% endblock %}
+
+<!-- Вставляем уникальное содержимое в тело страницы -->
+{% block content %}
+
+<p> Проверка 1 </p>
+<p>Привет, {{ username }}!</p>
+
+<!-- БЛОК СЛУЖИТ ДЛЯ ВЫВОДА СООБЩЕНИЯ ОТ СЕРВЕРА -->
+{% if message %}
+    <div id="message-box" class="success" style="display: block;">
+        {{ message }}
+    </div>
+{% endif %}
+
+<!-- ФОРМА ОБЯЗАТЕЛЬНО ДОЛЖНА ИМЕТЬ action="/3" и method="post" -->
+<form action="/3" method="post">
+    <!-- У кнопок обязательно должен быть type="submit" и name="button_action" -->
+    <button type="submit" name="button_action" value="enter_pressed" style="display: none;"></button>
+    <button type="submit" name="button_action" value="btn1" class="btn-one">Кнопка 1</button>
+    <button type="submit" name="button_action" value="btn2" class="btn-one">Кнопка 2</button>
+    <button type="submit" name="button_action" value="btn3" class="btn-one">Кнопка 3</button>
+  <!-- Текстовое поле для ввода -->
+    <div style="margin-bottom: 15px;">
+        <input type="text" name="user_text" value="{{ user_text }}"  placeholder="Введите ваш текст здесь..." 
+               style="width: 100%; padding: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; font-size: 16px;">
+    </div>
+
+</form>
+
+<!-- НОВАЯ ВТОРАЯ ФОРМА -->
+<p style="margin-top: 40px; font-weight: bold;">Дополнительные действия (Группа А-F)</p>
+
+<form action="/3" method="post" style="margin-top: 15px;">
+    
+<!-- ГРУППА ДЕЙСТВИЙ А-J -->
+<p style="margin-top: 40px; font-weight: bold;">Дополнительные действия (Группа А-J)</p>
+
+<div style="margin-top: 15px;">
+    
+    <!-- Первая тройка ссылок-кнопок (A, B, C) -->
+    <div class="btn-container" style="margin-bottom: 10px;">
+        <a href="{{ url_A }}" target="_blank" class="btn-zero" style="display: inline-block; text-decoration: none; color: black; line-height: normal;">But-A</a>
+        <a href="{{ url_B }}" target="_blank" class="btn-zero" style="display: inline-block; text-decoration: none; color: black; line-height: normal;">But-B</a>
+        <a href="{{ url_C }}" target="_blank" class="btn-zero" style="display: inline-block; text-decoration: none; color: black; line-height: normal;">But-C</a>
+    </div>
+
+    <!-- Вторая тройка ссылок-кнопок (D, E, F) -->
+    <div class="btn-container">
+        <a href="{{ url_D }}" target="_blank" class="btn-zero" style="display: inline-block; text-decoration: none; color: black; line-height: normal;">But-D</a>
+        <a href="{{ url_E }}" target="_blank" class="btn-zero" style="display: inline-block; text-decoration: none; color: black; line-height: normal;">But-E</a>
+        <a href="{{ url_F }}" target="_blank" class="btn-zero" style="display: inline-block; text-decoration: none; color: black; line-height: normal;">But-F</a>
+    </div>
+
+</div>
+
+<!-- ВТОРОЙ БЛОК СООБЩЕНИЯ (ID изменен на уникальный) -->
+{% if message2 %}
+    <div id="message-box-2" class="success" style="display: block; margin-top: 10px;">
+        {{ message2 }}
+    </div>
+{% endif %}
+
+<!-- Подключаем внешний подвал сайта -->
+{% include "footer.htm" %}
+
+{% endblock %}

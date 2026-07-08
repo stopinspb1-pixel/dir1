@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Таблица значений</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+        table { border-collapse: collapse; width: 50%; margin: 20px auto; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        
+        /* Стили для блока температуры */
+        .temp-container {
+            background-color: #2f3542;
+            color: #ffffff;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #cpu-temp { color: #ff4757; } /* Сделаем цифры температуры акцентными */
+
+        .btn-refresh { 
+            padding: 8px 16px; 
+            font-size: 14px; 
+            cursor: pointer; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        .btn-refresh:hover { background-color: #0056b3; }
+        .btn-refresh:disabled { background-color: #ccc; cursor: not-allowed; }
+        
+        .nav-link { display: inline-block; margin-top: 20px; color: #0066cc; text-decoration: none; }
+        .nav-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <!-- Виджет температуры процессора -->
+    <div class="temp-container">
+        Температура процессора: <span id="cpu-temp">Загрузка...</span>
+    </div>
+    <br>
+
+    <button id="refresh-btn" class="btn-refresh">Обновить таблицу</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Столбец 1</th>
+                <th>Столбец 2</th>
+                <th>Столбец 3</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            {% for val in values %}
+            <tr>
+                <td>{{ val }}</td>
+                <td>{{ val }}</td>
+                <td>{{ val }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="margin-top:20px;">
+        <a class="nav-link" href="/form">Обнулить все значения</a>
+    </p>
+
+    <script>
+        // Функция обновления таблицы (раз в 3 секунды)
+        async function refreshTable() {
+            const btn = document.getElementById('refresh-btn');
+            const tbody = document.getElementById('table-body');
+            btn.disabled = true;
+            btn.innerText = 'Обновление...';
+            try {
+                const response = await fetch('/api/values');
+                if (!response.ok) throw new Error('Ошибка сервера');
+                const data = await response.json();
+                tbody.innerHTML = '';
+                data.values.forEach(val => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${val}</td><td>${val}</td><td>${val}</td>`;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Ошибка обновления таблицы:', error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Обновить таблицу';
+            }
+        }
+
+        // НОВАЯ ФУНКЦИЯ: Обновление температуры (раз в 1 секунду)
+        async function refreshTemperature() {
+            const tempSpan = document.getElementById('cpu-temp');
+            try {
+                const response = await fetch('/api/temperature');
+                if (response.ok) {
+                    const data = await response.json();
+                    tempSpan.innerText = data.temperature;
+                }
+            } catch (error) {
+                console.error('Ошибка получения температуры:', error.message);
+            }
+        }
+
+        document.getElementById('refresh-btn').addEventListener('click', refreshTable);
+
+        // Запуск интервалов мониторинга
+        setInterval(refreshTable, 3000);       // Таблицу обновляем каждые 3 секунды
+        setInterval(refreshTemperature, 1000); // Температуру обновляем каждую 1 секунду
+        
+        // Первичный запуск температуры сразу при загрузке страницы
+        refreshTemperature();
+    </script>
+</body>
+</html>

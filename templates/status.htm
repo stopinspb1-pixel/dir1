@@ -1,0 +1,15 @@
+{% extends "base.htm" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<p style="margin-top: 20px; font-weight: bold; color: #007bff;">📋 Содержимое файла val.txt:</p>
+
+<div style="text-align: left; background-color: #272822; color: #f8f8f2; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 13px; max-height: 300px; overflow-y: auto;">
+    {% for line in logs %}
+        <p style="margin: 4px 0;">{{ line }}</p>
+    {% endfor %}
+</div>
+
+<a href="/3" class="btn-zero" style="display: inline-block; margin-top: 20px; text-decoration: none; padding: 10px 20px; color: black;">⬅ Назад к кнопкам</a>
+{% endblock %}

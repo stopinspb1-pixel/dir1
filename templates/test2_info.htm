@@ -1,0 +1,16 @@
+{% extends "base.htm" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h3 style="margin-top: 20px; color: #007bff;">🚀 Добро пожаловать на страницу Роутера 2!</h3>
+<p>Этот роутер успешно изолирован префиксом <code>/test</code>.</p>
+
+<div style="text-align: left; background-color: #f8f9fa; padding: 15px; border: 1px solid #dee2e6; border-radius: 4px; margin-top: 20px;">
+    <p><strong>Статус системы:</strong> {{ metrics.status }}</p>
+    <p><strong>Тип ОС контейнера:</strong> {{ metrics.os_name }}</p>
+    <p><strong>Рабочая директория:</strong> <small style="font-family: monospace;">{{ metrics.current_directory }}</small></p>
+</div>
+
+<a href="/3" class="btn-zero" style="display: inline-block; margin-top: 20px; text-decoration: none; padding: 10px 20px; color: black;">⬅ Вернуться на страницу /3</a>
+{% endblock %}
