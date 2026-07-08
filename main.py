@@ -20,3 +20,7 @@ app.include_router(test3.router3 , prefix="/test3", tags=["роутер 3"] )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 FILE_PATH = os.path.join(os.path.dirname(__file__), "val.txt")
+
+@app.get("/")
+def root():
+    return {"message": "Hello 2026-Gena"}
