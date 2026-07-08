@@ -1,6 +1,6 @@
 import random
 
-def generate_source_file(filename="source.txt", count=200):
+def generate_source_file(filename="source.txt", count=2000):
     """Генерирует файл со случайными числами от 0 до 1."""
     with open(filename, "w", encoding="utf-8") as file:
         for _ in range(count):
